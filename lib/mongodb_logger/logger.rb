@@ -133,7 +133,11 @@ module MongodbLogger
     end
 
     def log_raised_error(e)
-      add(3, "#{e.message}\n#{e.backtrace.join("\n")}")
+      if Thread.current[:mongodb_logger_skip_backtrace]
+        Thread.current[:mongodb_logger_skip_backtrace] = false
+      else
+        add(3, "#{e.message}\n#{e.backtrace.join("\n")}")
+      end
       # log exceptions
       Thread.current[:mongodb_logger_mongo_record][:is_exception] = true
     end
