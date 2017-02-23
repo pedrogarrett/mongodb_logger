@@ -29,7 +29,12 @@ module MongodbLogger
 
       def insert_log_record(record, options = {})
         record[:_id] = ::BSON::ObjectId.new
-        @collection.insert(record, options[:write_options])
+        if @connection.client.min_wire_version == 0
+          ins_opts = { writeConcern: options[:write_options] }
+        else
+          ins_opts = options[:write_options]
+        end
+        @collection.insert(record, ins_opts)
       end
 
       def collection_stats
